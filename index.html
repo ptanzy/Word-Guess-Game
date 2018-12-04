@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Events!</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-expand navbar-default bg-default nav_custom">
+        <a class="navbar-brand" href="#">Hang Man: Historical</a>
+
+        <div class="collapse navbar-collapse" id=navButtons>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Opt 1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Opt 2</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Opt 3</a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+          <div class="jumbotron">
+            <h2>Guess A Letter<span id="user-text"><strong>...Nothing.</strong></span></h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- script needs to be at the end of the document so that the elements
+         have loaded by the time that we need them -->
+    <script type="text/javascript">
+      // Let's start by grabbing a reference to the <span> below.
+      var userText = document.getElementById("user-text");
+
+
+      var guessObj = {
+        currentGuess: "",
+        randomWord: "",
+        wordUnderline: "",
+        arWords: ["Basil"],
+        arGuesses: [],
+        userStats: {
+          numWins: 0,
+          totalPlays: 0,
+          points: 0
+        },
+        createRandomWord: function(){
+          this.randomWord = this.arWords[Math.floor(Math.random()*this.arWords.length)];
+        },
+        getRandomWord: function(){
+          return this.randomWord;
+        },
+        buildSpacesString: function(str){
+          var spaces = "";
+          for(var i = 0; i<str.length; i++){
+            spaces += "_";
+          }
+          return spaces;
+        },
+        setWordUnderline: function(str){
+          this.wordUnderline = this.buildSpacesString(str);
+        },
+        replaceSpaceWithCorrectGuess: function(char){
+          for (var i = 0; i<this.currentWord.length; i++){
+            if(currentWord.charAt(i) === char){
+              this.wordUnderline[i] = char;
+            }
+          }
+          return this.wordUnderline;
+        } 
+      }
+
+
+      document.body.onload = function(){
+        //alert("load");
+        guessObj.createRandomWord();
+        var randomWord = guessObj.getRandomWord();
+        guessObj.setWordUnderline(guessObj.randomWord);
+        userText.textContent = guessObj.buildSpacesString(randomWord);
+      };
+
+      document.onkeyup = function(event) {
+        var char = event.key.charAt(0).toUpperCase();
+        while(!char.match(/[A-Za-z]/gi)){
+          char = prompt("You must enter a letter")
+        }
+        userText.textContent = replaceSpaceWithCorrectGuess(char);
+      };
+    </script>
+  </body>
+</html>
