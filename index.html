@@ -33,7 +33,14 @@
       <div class="row">
         <div class="col-md-offset-2 col-md-8">
           <div class="jumbotron">
-            <h2>Guess A Letter<span id="user-text"><strong>...Nothing.</strong></span></h2>
+            <h2>Guess A Letter <span id="rnd-word"><strong></strong></span></h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-offset-2 col-md-8">
+          <div class="jumbotron">
+            <h2>Wrong Guess <span id="wrong-letter"><strong></strong></span></h2>
           </div>
         </div>
       </div>
@@ -43,20 +50,17 @@
          have loaded by the time that we need them -->
     <script type="text/javascript">
       // Let's start by grabbing a reference to the <span> below.
-      var userText = document.getElementById("user-text");
-
-
+      var userStats = {
+        numWins: 0,
+        totalPlays: 0,
+        points: 0
+      },
       var guessObj = {
         currentGuess: "",
         randomWord: "",
         wordUnderline: "",
-        arWords: ["Basil"],
-        arGuesses: [],
-        userStats: {
-          numWins: 0,
-          totalPlays: 0,
-          points: 0
-        },
+        arWords: ["BASIL"],
+        arWrongGuess: [],
         createRandomWord: function(){
           this.randomWord = this.arWords[Math.floor(Math.random()*this.arWords.length)];
         },
@@ -74,22 +78,30 @@
           this.wordUnderline = this.buildSpacesString(str);
         },
         replaceSpaceWithCorrectGuess: function(char){
-          for (var i = 0; i<this.currentWord.length; i++){
-            if(currentWord.charAt(i) === char){
-              this.wordUnderline[i] = char;
+          for (var i = 0; i<this.randomWord.length; i++){
+            if(this.randomWord.charAt(i) === char){
+              //this.wordUnderline = char;  TODO function to splice in char for cur letter
+              this.wordUnderline = this.wordUnderline.substr(0, i)+ char +this.wordUnderline.substr(i + char.length);
             }
           }
           return this.wordUnderline;
-        } 
+        }, 
+        collectWrongGuess: function(char){
+          if(this.randomWord !== "undefined" && !this.randomWord.includes(char)){
+            this.arWrongGuess.push(char)
+          }
+        }
       }
 
+      var randEl = document.getElementById("rnd-word");
+      var wrongEl = document.getElementById("wrong-letter");
 
       document.body.onload = function(){
         //alert("load");
         guessObj.createRandomWord();
         var randomWord = guessObj.getRandomWord();
         guessObj.setWordUnderline(guessObj.randomWord);
-        userText.textContent = guessObj.buildSpacesString(randomWord);
+        randEl.textContent = guessObj.buildSpacesString(randomWord);
       };
 
       document.onkeyup = function(event) {
@@ -97,7 +109,12 @@
         while(!char.match(/[A-Za-z]/gi)){
           char = prompt("You must enter a letter")
         }
-        userText.textContent = replaceSpaceWithCorrectGuess(char);
+        randEl.textContent = guessObj.replaceSpaceWithCorrectGuess(char);
+        guessObj.collectWrongGuess(char);
+        wrongEl.textContent = guessObj.arWrongGuess.toString();
+        if(guessObj.arWRongGuess > 8){
+
+        }
       };
     </script>
   </body>
