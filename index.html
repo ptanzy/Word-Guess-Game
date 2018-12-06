@@ -33,14 +33,14 @@
       <div class="row">
         <div class="col-md-offset-2 col-md-8">
           <div class="jumbotron">
-            <h2>Guess A Letter <span id="rnd-word"><strong></strong></span></h2>
+            <h2 id="status">Guess A Letter <span id="rnd-word"></span></h2>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-offset-2 col-md-8">
           <div class="jumbotron">
-            <h2>Wrong Guess <span id="wrong-letter"><strong></strong></span></h2>
+            <h2 id="wrong-txt">Wrong Guess <span id="wrong-letter"></span></h2>
           </div>
         </div>
       </div>
@@ -54,12 +54,14 @@
         numWins: 0,
         totalPlays: 0,
         points: 0
-      },
+      };
+
       var guessObj = {
-        currentGuess: "",
+        //currentGuess: "",
         randomWord: "",
         wordUnderline: "",
         arWords: ["BASIL"],
+        arCorrectGuess: [],
         arWrongGuess: [],
         createRandomWord: function(){
           this.randomWord = this.arWords[Math.floor(Math.random()*this.arWords.length)];
@@ -81,6 +83,9 @@
           for (var i = 0; i<this.randomWord.length; i++){
             if(this.randomWord.charAt(i) === char){
               //this.wordUnderline = char;  TODO function to splice in char for cur letter
+              if(!this.arCorrectGuess.includes(char)){
+                this.arCorrectGuess.push(char);
+              }
               this.wordUnderline = this.wordUnderline.substr(0, i)+ char +this.wordUnderline.substr(i + char.length);
             }
           }
@@ -90,32 +95,75 @@
           if(this.randomWord !== "undefined" && !this.randomWord.includes(char)){
             this.arWrongGuess.push(char)
           }
+        },
+        setupMatch: function(){
+          this.resetHangManObj();
+          this.createRandomWord();
+          var randomWord = this.getRandomWord();
+          this.setWordUnderline(this.randomWord);
+          var underline = this.buildSpacesString(randomWord)
+          return underline;
+        },
+        resetHangManObj: function(){
+          this.randomWord = "";
+          this.wordUnderline = "";
+          this.arCorrectGuess = [];
+          this.arWrongGuess = [];
         }
       }
-
       var randEl = document.getElementById("rnd-word");
-      var wrongEl = document.getElementById("wrong-letter");
+      var wrongText = document.getElementById("wrong-txt");
+      var wrongEl = document.getElementById("wrong-letter");      
 
       document.body.onload = function(){
         //alert("load");
-        guessObj.createRandomWord();
-        var randomWord = guessObj.getRandomWord();
-        guessObj.setWordUnderline(guessObj.randomWord);
+        // guessObj.createRandomWord();
+        // var randomWord = guessObj.getRandomWord();
+        // guessObj.setWordUnderline(guessObj.randomWord);
+        var randomWord = guessObj.setupMatch();
         randEl.textContent = guessObj.buildSpacesString(randomWord);
       };
 
-      document.onkeyup = function(event) {
-        var char = event.key.charAt(0).toUpperCase();
+      var resetGame = function(message){
+        var status = document.getElementById("status");
+        status.childNodes[0].textContent = message;
+        randEl.textContent = guessObj.randomWord;
+        document.onkeyup =  null;
+        setTimeout(function () {
+          document.onkeyup = onKeyUpListener;
+          var underlines = guessObj.setupMatch();
+          status.childNodes[0].textContent = "Guess A Letter ";
+          randEl.textContent = underlines;
+          wrongText.childNodes[0].textContent = "Wrong Guess ";
+          wrongEl.textContent = "";
+        }, 5000);
+      }
+
+      var onKeyUpListener = function(event) {
+        var char = event.key;
         while(!char.match(/[A-Za-z]/gi)){
-          char = prompt("You must enter a letter")
+          char = prompt("You must enter a letter");
         }
+        char = char.charAt(0).toUpperCase();
         randEl.textContent = guessObj.replaceSpaceWithCorrectGuess(char);
+        if(!guessObj.wordUnderline.includes("_")){
+          resetGame("Correct: ")
+        }
+        if(guessObj.arWrongGuess.includes(char) || guessObj.arCorrectGuess.includes(char)){
+          return;
+        }
         guessObj.collectWrongGuess(char);
         wrongEl.textContent = guessObj.arWrongGuess.toString();
-        if(guessObj.arWRongGuess > 8){
-
+        if(guessObj.arWrongGuess.length > 8){
+          resetGame("The word was: ");
+        }else{
+          wrongEl.textContent = guessObj.arWrongGuess.toString();
         }
       };
+
+      document.onkeyup = onKeyUpListener;
+      
+      
     </script>
   </body>
 </html>
