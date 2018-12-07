@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>Events!</title>
+    <title>Lets Hang, Man!</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
@@ -31,6 +31,14 @@
 
     <div class="container">
       <div class="row">
+        <div class="col-md-8">
+          <div>
+            <p id="player-stats">Press any key to start</p>
+            <p id="guess-remain">Guesses: 9</p>
+          </div>
+        </div>
+      </div>
+      <div class="row">
         <div class="col-md-offset-2 col-md-8">
           <div class="jumbotron">
             <h2 id="status">Guess A Letter <span id="rnd-word"></span></h2>
@@ -53,11 +61,16 @@
       var userStats = {
         numWins: 0,
         totalPlays: 0,
-        points: 0
+        incrementNumWins: function(){
+          this.numWins++;
+        },
+        incrementTotalPlays: function(){
+          this.totalPlays++;
+        }        
       };
   
       var guessObj = {
-        //currentGuess: "",
+        guessesRemain: 9,
         randomWord: "",
         wordUnderline: "",
         arWords: [],
@@ -167,8 +180,17 @@
           var underline = this.buildSpacesString(randomWord)
           return underline;
         },
+        decrementGuessesRemain: function(){
+          this.guessesRemain--;
+        }
       }
 
+
+      var randEl = document.getElementById("rnd-word");
+      var wrongText = document.getElementById("wrong-txt");
+      var wrongEl = document.getElementById("wrong-letter");     
+      var stats = document.getElementById("player-stats");
+      var guess = document.getElementById("guess-remain");     
 
       var resetMatch = function(message){
         var status = document.getElementById("status");
@@ -176,6 +198,10 @@
         randEl.textContent = guessObj.randomWord;
         document.onkeyup =  null;
         setTimeout(function () {
+          guessObj.guessesRemain = 9;
+          guess.textContent = "Guesses: 9";
+          userStats.incrementTotalPlays();
+          stats.textContent = "Correct: "+userStats.numWins+" / "+userStats.totalPlays;
           document.onkeyup = onKeyUpListener;
           var underlines = guessObj.setupMatch();
           status.childNodes[0].textContent = "Guess A Letter ";
@@ -183,11 +209,7 @@
           wrongText.childNodes[0].textContent = "Wrong Guess ";
           wrongEl.textContent = "";
         }, 5000);
-      }
-
-      var randEl = document.getElementById("rnd-word");
-      var wrongText = document.getElementById("wrong-txt");
-      var wrongEl = document.getElementById("wrong-letter");      
+      } 
 
       document.body.onload = function(){
         //setup of the initial word guess game
@@ -214,11 +236,16 @@
           //remove correct word from array
           guessObj.removeStrFromArWords(guessObj.randomWord)
           //reset the game with a "Correct" message
+          userStats.incrementNumWins();
           resetMatch("Correct: ")
         }
         //if the guess is already a wrong or correct guess then return to skip remaining logic
         if(guessObj.arWrongGuess.includes(char) || guessObj.arCorrectGuess.includes(char)){
           return;
+        }
+        guessObj.decrementGuessesRemain();
+        if(guessObj.guessesRemain >= 0){
+          guess.textContent = "Guesses: "+guessObj.guessesRemain;
         }
         //incorrect guess goes into array
         guessObj.collectWrongGuess(char);
