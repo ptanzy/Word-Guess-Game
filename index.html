@@ -159,7 +159,11 @@
 
           this.setRandomWord();
           var randomWord = this.getRandomWord();
-          this.setWordUnderline(this.randomWord);
+          if(randomWord){
+            this.setWordUnderline(this.randomWord);
+          }else{
+            
+          }
           var underline = this.buildSpacesString(randomWord)
           return underline;
         },
